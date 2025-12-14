@@ -104,14 +104,12 @@ void printCenteredTitle(const string& title, int boxWidth) {
 int get_options(const int max_options)
 {
 	int opt;
-	string input;
 
 	do {
 		cout << "\n";
 		set_padding(25);
 		cout << "Enter your option (1 to " << max_options << "): ";
-		getline(cin, input);
-		opt = stoi(input);
+		cin >> opt;
 
 		if (opt < 1 || opt > max_options) {
 			set_padding(25);
@@ -142,7 +140,7 @@ void set_line(const int width)
 void pause_screen()
 {
 	cin.get();
-	cin.ignore();
+	cin.clear();
 }
 
 

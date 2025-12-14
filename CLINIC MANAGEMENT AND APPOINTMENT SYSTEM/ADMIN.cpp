@@ -81,7 +81,7 @@ bool Admin::display_admin_dashboard(sql::Connection* con)
             clear_screen();
             cout << "\n";
             set_padding(padding);
-            cout << "case 3";
+			display_staff_table(con);
             pause_screen();
             break;
 
@@ -261,30 +261,73 @@ void Admin::display_staff_table(sql::Connection* con)
 {
     //vars related
     const int col = 6;
-    string query = "SELECT * FROM staff";
-	string header[col] = { "Staff ID", "Name", "Email", "PhoneNumber", "ShiftStartTime", "ShiftStartTime"};
+    string info, query = "SELECT * FROM staff";
+	string col_title[col] = { "Staff ID", "Name", "Email", "PhoneNumber", "ShiftStartTime", "ShiftEndTime"};
 	int col_width[col] = {0};
 
 	sql::PreparedStatement* pstmt = con->prepareStatement(query);
 	sql::ResultSet* res = pstmt->executeQuery();
 
-    //get col length 
-    while (res->next()) {
-        for (int i = 0; i < col; i++) {
-			string info = res->getString(header[i]);
-			int info_length = info.length();
-            if (col_width[i] < info_length) {
-                col_width[i] = info.length();
+    if (res->next()) {
+
+        //get col length 
+        while (res->next()) {
+            for (int i = 0; i < col; i++) {
+                info = res->getString(col_title[i]);
+                int info_length = info.length();
+                if (col_width[i] < info_length) {
+                    col_width[i] = info.length();
+                }
             }
         }
+
+        //display table colum title  
+        for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+        cout << "|";
+
+        for (int i = 0; i < col; i++) {
+            set_padding(2);
+            cout << col_title[i];
+            set_padding(col_width[i] - col_title[i].length() + 2);
+            cout << "|";
+        }
+        cout << "\n";
+
+        for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+
+        delete res;
+        res = pstmt->executeQuery();
+
+        //display each roe
+        while (res->next()) {
+            cout << "|";
+            for (int i = 0; i < col; i++) {
+                info = res->getString(col_title[i]);
+                set_padding(2);
+                cout << info;
+				set_padding(col_width[i] - info.length() + 2);
+				cout << "|";
+            }
+        }
+
+        cout << "\n";
+		for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+
+        delete res;
+		delete pstmt;
+
+		cout << "\n";
+		set_padding(padding);
+		cout << "press enter to return to dashboard";
     }
-
-    //toatl width
-    int tableWidth = 0;
-    for (int i = 0; i < col; i++) tableWidth += col_width[i];
-
-    //table line
-	for (int i = 0; i < tableWidth; i++) set_line(col_width[i] + 2);
-
+	//if table empty
+    else {
+        clear_screen();
+		cout << "\n\n";
+		set_padding(padding);
+		cout << "NO STAFF ACCOUNT AVAILABLE TO DISPLAY.\n";
+		set_padding(padding);
+		cout << "press enter to return...";
+    }
 
 }
