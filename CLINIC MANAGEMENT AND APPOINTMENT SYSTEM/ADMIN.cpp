@@ -284,7 +284,7 @@ void Admin::display_staff_table(sql::Connection* con)
     for (int i = 0; i < col; i++) tableWidth += col_width[i];
 
     //table line
-    for(int i = 0; i < tableWidth; i++){}
+	for (int i = 0; i < tableWidth; i++) set_line(col_width[i] + 2);
 
 
 }
