@@ -2,8 +2,6 @@
 #define ADMIN_H
 
 #include "database.h"
-#include <mysql_connection.h>
-using namespace std;
 
 class Admin {
 private:

@@ -1,5 +1,6 @@
 #include "database.h"
 #include "ADMIN.h"
+#include "Staff.h"
 
 sql::Connection* db_test_con(const string& server, const string& username, const string& password)
 {
@@ -154,6 +155,10 @@ void get_error_message(sql::SQLException& e)
 
 void main_menu(sql::Connection* con)
 {
+	//create objects
+	Admin admin;
+	Staff staff;
+
 	while (true) {
 		clear_screen();
 		printCenteredTitle("MAIN MENU", 40);
@@ -163,8 +168,6 @@ void main_menu(sql::Connection* con)
 		switch (x) {
 		case 1: {
 			clear_screen();
-			// create object here
-			Admin admin;
 
 			for (int i = 0; i <= 3; i++) {
 				bool log = admin.display_login_menu(con);
@@ -201,7 +204,38 @@ void main_menu(sql::Connection* con)
 		}
 		case 2:
 			clear_screen();
-			cout << "test_2";  // Placeholder for Staff
+
+			for (int i = 0; i <= 3; i++) {
+				bool log = staff.display_login_menu(con);
+				if (log) {
+					clear_screen();
+					set_padding(25);
+					cout << "Welcome, staff! Press Enter to continue...";
+					pause_screen();
+
+					bool h = staff.display_staff_dashboard(con);
+					if (h == false) {
+						break;
+					}
+				}
+
+				clear_screen();
+				cout << "\n\n";
+				set_padding(25);
+				cout << "U have " << (3 - i) << " login attempts left.";
+				if (i == 2) {
+					clear_screen();
+					set_padding(25);
+					cout << "Maximum login attempts reached. Returning to main menu...";
+					pause_screen();
+				}
+				else {
+					cout << "\n\n";
+					set_padding(25);
+					cout << "Press Enter to retry login...";
+					pause_screen();
+				}
+			}
 			break;
 		case 3:
 			clear_screen();

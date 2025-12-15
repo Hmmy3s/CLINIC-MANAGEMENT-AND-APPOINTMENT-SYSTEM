@@ -146,10 +146,12 @@
     <ClCompile Include="ADMIN.cpp" />
     <ClCompile Include="database.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Staff.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ADMIN.h" />
     <ClInclude Include="database.h" />
+    <ClInclude Include="Staff.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -99,7 +99,7 @@ bool Admin::display_admin_dashboard(sql::Connection* con)
             clear_screen();
             cout << "\n";
             set_padding(padding);
-            cout << "case 5";
+            cout << "repot 1";
             pause_screen();
             break;
 
@@ -107,7 +107,7 @@ bool Admin::display_admin_dashboard(sql::Connection* con)
             clear_screen();
             cout << "\n";
             set_padding(padding);
-            cout << "case 6";
+            cout << "report 2";
             pause_screen();
             break;
 
