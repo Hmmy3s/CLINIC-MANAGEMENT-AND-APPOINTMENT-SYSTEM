@@ -42,8 +42,7 @@ bool check_credentials(sql::Connection* con, const string& table, const string& 
 
 	}
 	catch (sql::SQLException& e) {
-		cout << "error" << e.what() << endl;
-		return false;
+		get_error_message(e);
 	}
 }
 
@@ -132,15 +131,24 @@ void set_padding(const int padding)
 
 void set_line(const int width)
 {
-	cout << "+";
 	for (int i = 0; i < width; i++) cout << "-";
-	cout << "+" << endl;
+	cout << "+";
 }
 
 void pause_screen()
 {
+	cin.ignore();
 	cin.get();
-	cin.clear();
+}
+
+void get_error_message(sql::SQLException& e)
+{
+	clear_screen();
+	cout << "\n\n";
+	set_padding(25);
+	cout << "Error message: " << e.what() << endl;
+	pause_screen();
+	exit(1);
 }
 
 
@@ -169,10 +177,6 @@ void main_menu(sql::Connection* con)
 					bool h = admin.display_admin_dashboard(con);
 					if (h == false) {
 						break;
-					}
-					else{
-
-						return;
 					}
 				}
 
@@ -221,7 +225,7 @@ string get_password() {
 	char cha;
 
 	while (true) {
-		cha = _getch();  // Read a single character
+		cha = _getch();  // Read a single character 
 
 		if (cha == 13) { // Press Enter
 			break;
@@ -245,6 +249,7 @@ string get_password() {
 
 string generate_id(sql::Connection* con, const string& table_name)
 {
+	//select the prefix based on table name
 	string col, new_id, lastID;
 	if (table_name == "staff") {
 		col = "Staff_ID";
@@ -262,9 +267,13 @@ string generate_id(sql::Connection* con, const string& table_name)
 			string query = "SELECT `" + col + "` FROM " + table_name + " ORDER BY " + col + " DESC LIMIT 1";
 			sql::PreparedStatement* pstmt = con->prepareStatement(query);
 			sql::ResultSet* res = pstmt->executeQuery();
+
+			//normal case
 			if (res->next()) {
 				lastID = res->getString(col);
 			}
+
+			//if table empty
 			else {
 				new_id = new_id + "0000";
 				delete res;

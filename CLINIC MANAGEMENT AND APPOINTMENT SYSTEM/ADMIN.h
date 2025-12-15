@@ -25,6 +25,7 @@ public:
 	void create_staff_acc(sql::Connection* con, const string& admin_id);
 	void delete_staff_acc(sql::Connection* con);
 	void display_staff_table(sql::Connection* con);
+	void update_staff_shift(sql::Connection* con);
 
 };
 

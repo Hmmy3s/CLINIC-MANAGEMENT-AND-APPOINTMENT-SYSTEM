@@ -82,6 +82,9 @@ bool Admin::display_admin_dashboard(sql::Connection* con)
             cout << "\n";
             set_padding(padding);
 			display_staff_table(con);
+            cout << "\n\n";
+            set_padding(padding);
+            cout << "press enter to return to dashboard";
             pause_screen();
             break;
 
@@ -89,8 +92,7 @@ bool Admin::display_admin_dashboard(sql::Connection* con)
             clear_screen();
             cout << "\n";
             set_padding(padding);
-            cout << "case 4";
-            pause_screen();
+            update_staff_shift(con);
             break;
 
         case 5:
@@ -201,12 +203,7 @@ void Admin::create_staff_acc(sql::Connection* con, const string& admin_id)
         cout << "ACCOUNT SUCCESFULLY CREATED!!\n";
     }
     catch (sql::SQLException& e) {
-        clear_screen();
-        cout << "\n\n";
-        set_padding(padding);
-        cout << "Error message: " << e.what() << endl;
-        pause_screen();
-		exit(1);
+        get_error_message(e);
     }
 }
 
@@ -247,87 +244,160 @@ void Admin::delete_staff_acc(sql::Connection* con)
         }
     }
     catch (sql::SQLException& e) {
-        clear_screen();
-        cout << "\n\n";
-        set_padding(padding);
-        cout << "Error message: " << e.what() << endl;
-        pause_screen();
-        exit(1);
+        get_error_message(e);
 	}
 
 }
 
 void Admin::display_staff_table(sql::Connection* con)
 {
-    //vars related
-    const int col = 6;
-    string info, query = "SELECT * FROM staff";
-	string col_title[col] = { "Staff ID", "Name", "Email", "PhoneNumber", "ShiftStartTime", "ShiftEndTime"};
-	int col_width[col] = {0};
+    try {
+        //vars related
+        const int col = 6;
+        string info, query = "SELECT * FROM staff";
+        string col_title[col] = { "Staff_ID", "Name", "Email", "PhoneNumber", "ShiftStartTime", "ShiftEndTime" };
+        int col_width[col] = { 0 };
 
-	sql::PreparedStatement* pstmt = con->prepareStatement(query);
-	sql::ResultSet* res = pstmt->executeQuery();
+        sql::PreparedStatement* pstmt = con->prepareStatement(query);
+        sql::ResultSet* res = pstmt->executeQuery();
 
-    if (res->next()) {
+        if (res->next()) {
 
-        //get col length 
-        while (res->next()) {
-            for (int i = 0; i < col; i++) {
-                info = res->getString(col_title[i]);
-                int info_length = info.length();
-                if (col_width[i] < info_length) {
-                    col_width[i] = info.length();
+            //get col length 
+            while (res->next()) {
+                for (int i = 0; i < col; i++) {
+                    info = res->getString(col_title[i]);
+                    int info_length = info.length();
+					col_width[i] = col_title[i].length();
+                    if (col_width[i] < info_length) {
+                        col_width[i] = info.length() + 2;
+                    }
                 }
             }
-        }
 
-        //display table colum title  
-        for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
-        cout << "|";
+			clear_screen();
 
-        for (int i = 0; i < col; i++) {
-            set_padding(2);
-            cout << col_title[i];
-            set_padding(col_width[i] - col_title[i].length() + 2);
-            cout << "|";
-        }
-        cout << "\n";
+            //display table colum title  
+            cout << "+";
+            for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+			cout << "\n";
 
-        for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
-
-        delete res;
-        res = pstmt->executeQuery();
-
-        //display each roe
-        while (res->next()) {
             cout << "|";
             for (int i = 0; i < col; i++) {
-                info = res->getString(col_title[i]);
                 set_padding(2);
-                cout << info;
-				set_padding(col_width[i] - info.length() + 2);
-				cout << "|";
+                cout << col_title[i];
+                set_padding(col_width[i] - col_title[i].length() + 2);
+                cout << "|";
             }
+
+            cout << "\n";
+			cout << "+";
+            for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+            cout << "\n";
+
+            delete res;
+            res = pstmt->executeQuery();
+
+            //display each roe
+            while (res->next()) {
+                cout << "|";
+                for (int i = 0; i < col; i++) {
+                    info = res->getString(col_title[i]);
+                    set_padding(2);
+                    if (info == "00:00:00") {
+                        info = "N/A";
+                        cout << info;
+                    }
+                    else {
+                        cout << info;
+                    }
+                    set_padding(col_width[i] - info.length() + 2);
+                    cout << "|";
+                }
+				cout << "\n";
+            }
+
+			cout << "+";
+            for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+
+            delete res;
+            delete pstmt;
+
         }
+        //if table empty
+        else {
+            clear_screen();
+            cout << "\n\n";
+            set_padding(padding);
+            cout << "NO STAFF ACCOUNT AVAILABLE TO DISPLAY.\n";
+            set_padding(padding);
+            cout << "press enter to return...";
+        }
+    }
+    catch (sql::SQLException& e) {
+        get_error_message(e);
+	}
+}
+
+void Admin::update_staff_shift(sql::Connection* con)
+{
+    try {
+        string staff_id, shift_start, shift_end, query;
+        display_staff_table(con);
+
+        cout << "\n\n\n";
+        set_padding(padding);
+        cout << "Enter the staff_ID of the staff u want to change: ";
+        cin >> staff_id;
 
         cout << "\n";
-		for (int i = 0; i < col; i++) set_line(col_width[i] + 4);
+        set_padding(padding);
+        cout << "Enter new shift start time (hh:mm:ss) : ";
+        cin >> shift_start;
 
+        cout << "\n";
+        set_padding(padding);
+        cout << "Enter new shift end time (hh:mm:ss) : ";
+        cin >> shift_end;
+
+        query = "SELECT COUNT(*) FROM staff WHERE Staff_ID = ?";
+        sql::PreparedStatement* pstmt = con->prepareStatement(query);
+        pstmt->setString(1, staff_id);
+        sql::ResultSet* res = pstmt->executeQuery();
+        res->next();
+        int count = res->getInt(1);
         delete res;
-		delete pstmt;
+        delete pstmt;
 
-		cout << "\n";
-		set_padding(padding);
-		cout << "press enter to return to dashboard";
-    }
-	//if table empty
-    else {
-        clear_screen();
-		cout << "\n\n";
-		set_padding(padding);
-		cout << "NO STAFF ACCOUNT AVAILABLE TO DISPLAY.\n";
-		set_padding(padding);
-		cout << "press enter to return...";
-    }
+        if (count > 0) {
+            query = "UPDATE staff SET ShiftStartTime = ?, ShiftEndTime = ? WHERE Staff_ID = ?";
+            pstmt = con->prepareStatement(query);
+            pstmt->setString(1, shift_start);
+            pstmt->setString(2, shift_end);
+            pstmt->setString(3, staff_id);
+            pstmt->executeUpdate();
+            clear_screen();
 
+            cout << "\n\n\n";
+            set_padding(padding);
+            cout << "UPDATED STAFF SUCCESFULLY!!!\n";
+
+            set_padding(padding);
+            cout << "Press enter to return to main menu ......";
+
+            pause_screen();
+        }
+        else {
+            clear_screen();
+            cout << "\n\n\n";
+            set_padding(padding);
+            cout << "STAFF ID DOESNT EXIST. UPDATE FAILED!!!\n";
+
+            set_padding(padding);
+            cout << "Press enter to return to main menu ......";
+        }
+    }
+    catch (sql::SQLException& e) {
+        get_error_message(e);
+    }
 }

@@ -16,6 +16,9 @@ int main() {
     //start
 	main_menu(con);
 
+	/**Admin admin;
+	admin.display_staff_table(con); **/
+
     delete con;
 
     return 0;

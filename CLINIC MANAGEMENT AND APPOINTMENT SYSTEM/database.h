@@ -28,6 +28,7 @@ void clear_screen();
 void set_padding(const int padding);
 void set_line(const int width);
 void pause_screen();
+void get_error_message(sql::SQLException& e);
 
 string get_password();
 string generate_id(sql::Connection* con, const string& table_name);
